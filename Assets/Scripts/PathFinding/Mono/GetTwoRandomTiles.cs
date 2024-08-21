@@ -34,7 +34,7 @@ namespace PathFinding.Mono
                     rand.Next(bounds.xMin, bounds.xMax),
                     rand.Next(bounds.yMin, bounds.yMax),
                     0);
-            } while (_tilemap.GetTile(_startPoint).name == barrierTile.name);
+            } while (_tilemap.GetTile(_startPoint) == barrierTile);
 
             do
             {
@@ -42,7 +42,7 @@ namespace PathFinding.Mono
                     rand.Next(bounds.xMin, bounds.xMax),
                     rand.Next(bounds.yMin, bounds.yMax),
                     0);
-            } while (_startPoint == _endPoint && _tilemap.GetTile(_endPoint).name == barrierTile.name);
+            } while (_startPoint == _endPoint || _tilemap.GetTile(_endPoint) == barrierTile);
 
             _tilemap.SetTile(_startPoint, startTile);
             _tilemap.SetTile(_endPoint, endTile);
