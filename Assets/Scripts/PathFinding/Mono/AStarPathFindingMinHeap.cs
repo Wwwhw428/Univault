@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace PathFinding.Mono
 {
-    [RequireComponent(typeof(GetTwoRandomTiles))]
-    public class AStarPathFinding : BasicAStarPathFinding
+    public class AStarPathFindingMinHeap : BasicAStarPathFinding
     {
-        private List<PathPoint> _openList = new();
-
-        private OpenPointComparer _comparer;
+        private MinHeap _openHeap = new();
 
         protected override void Init()
         {
             base.Init();
-            
-            _openList.Clear();
+
+            _openHeap.Init();
         }
 
         protected override void OneStep()
@@ -29,7 +25,7 @@ namespace PathFinding.Mono
             if (!ClosePointList.Exists(p => p.Position == leftPoint.Position) &&
                 Tilemap.cellBounds.Contains(leftPoint.Position) &&
                 Tilemap.GetTile(leftPoint.Position) != barrierTile)
-                _openList.Add(new PathPoint()
+                _openHeap.AddNode(new PathPoint()
                 {
                     Position = leftPoint.Position,
                     DistanceToEndPoint = Math.Abs(EndPoint.x - leftPoint.Position.x) +
@@ -46,7 +42,7 @@ namespace PathFinding.Mono
             if (!ClosePointList.Exists(p => p.Position == upPoint.Position) &&
                 Tilemap.cellBounds.Contains(upPoint.Position) &&
                 Tilemap.GetTile(upPoint.Position) != barrierTile)
-                _openList.Add(new PathPoint()
+                _openHeap.AddNode(new PathPoint()
                 {
                     Position = upPoint.Position,
                     DistanceToEndPoint = Math.Abs(EndPoint.x - upPoint.Position.x) +
@@ -63,7 +59,7 @@ namespace PathFinding.Mono
             if (!ClosePointList.Exists(p => p.Position == rightPoint.Position) &&
                 Tilemap.cellBounds.Contains(rightPoint.Position) &&
                 Tilemap.GetTile(rightPoint.Position) != barrierTile)
-                _openList.Add(new PathPoint()
+                _openHeap.AddNode(new PathPoint()
                 {
                     Position = rightPoint.Position,
                     DistanceToEndPoint =
@@ -80,7 +76,7 @@ namespace PathFinding.Mono
             if (!ClosePointList.Exists(p => p.Position == bottomPoint.Position) &&
                 Tilemap.cellBounds.Contains(bottomPoint.Position) &&
                 Tilemap.GetTile(bottomPoint.Position) != barrierTile)
-                _openList.Add(new PathPoint()
+                _openHeap.AddNode(new PathPoint()
                 {
                     Position = bottomPoint.Position,
                     DistanceToEndPoint =
@@ -88,36 +84,13 @@ namespace PathFinding.Mono
                     ParentPosition = leftPoint.ParentPosition
                 });
 
-            _openList.Sort(_comparer);
-
-            CurrentPoint = _openList[0];
-            _openList.RemoveAt(0);
+            CurrentPoint = _openHeap.Pop();
+            
             ClosePointList.Add(new ClosePoint()
             {
                 Position = CurrentPoint.Position,
                 ParentPosition = CurrentPoint.ParentPosition,
             });
         }
-
-        private struct OpenPointComparer : IComparer<PathPoint>
-        {
-            public int Compare(PathPoint x, PathPoint y)
-            {
-                return x.DistanceToEndPoint - y.DistanceToEndPoint;
-            }
-        }
-    }
-
-    public struct PathPoint
-    {
-        public Vector3Int Position;
-        public int DistanceToEndPoint;
-        public Vector3Int ParentPosition;
-    }
-
-    public struct ClosePoint
-    {
-        public Vector3Int Position;
-        public Vector3Int ParentPosition;
     }
 }
